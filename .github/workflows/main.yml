@@ -59,17 +59,13 @@ jobs:
           cache-dependency-path: ./client/package-lock.json
 
       - name: installer les dépendances
-        run: npm ci --prefer-offline
-
-      - name: vérifie les vulnérabilités
-        run: |
-          cd client
-          npm audit
+        run: npm ci
 
       - name: vérifie le code
-        run: |
-          cd client
-          npm run lint
+        run: npm run lint
+
+      - name: vérifie les vulnérabilités
+        run: npm audit
 
   build_frontend:
     runs-on: ubuntu-latest
