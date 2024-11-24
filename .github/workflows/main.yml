@@ -59,7 +59,7 @@ jobs:
           cache-dependency-path: ./client/package-lock.json
 
       - name: installer les dépendances
-        run: npm ci
+        run: npm ci --prefer-offline
 
       - name: vérifie le code
         run: npm run lint
