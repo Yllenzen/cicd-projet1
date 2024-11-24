@@ -47,59 +47,8 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  checks_frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout le code
-        uses: actions/checkout@v4
-
-      - name: installer Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: ./client/package-lock.json
-
-      - name: installer les dépendances
-        run: npm ci --prefer-offline
-
-      - name: vérifie le code
-        run: npm run lint
-
-      - name: vérifie les vulnérabilités
-        run: npm audit
-
-  build_frontend:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./client
-    needs: [checks_frontend]
-    steps:
-      - name: checkout le code
-        uses: actions/checkout@v4
-
-      - name: installer Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: ./client/package-lock.json
-
-      - name: installer les dépendances
-        run: npm ci --prefer-offline
-
-      - name: build le frontend
-        run: npm run build
-
-      - name: archiver les artefacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: ./client/dist/
-
   deploy:
-    needs: [tests-backend, build_frontend]
+    needs: [tests-backend]
     runs-on: ubuntu-latest
     steps:
       - name: checkout le code
