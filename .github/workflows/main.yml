@@ -48,9 +48,6 @@ jobs:
 
   checks_frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./client
     steps:
       - name: checkout le code
         uses: actions/checkout@v4
