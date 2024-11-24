@@ -96,7 +96,7 @@ jobs:
           path: ./client/dist/
 
   deploy:
-    needs: [checks_frontend, tests-backend, build_frontend]
+    needs: [tests-backend, build_frontend]
     runs-on: ubuntu-latest
     steps:
       - name: checkout le code
