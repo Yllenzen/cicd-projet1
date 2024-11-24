@@ -1,0 +1,65 @@
+name: CI/CD workflow
+
+env:
+  SERVER_USER: "root"
+  SERVER_IP: "92.222.36.28"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - name: checkout le code
+        uses: actions/checkout@v4
+
+      - name: installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+          cache-dependency-path: ./server/package-lock.json
+
+      - name: installer les dépendances
+        run: npm ci --prefer-offline
+
+      - name: vérifie le code
+        run: npm run lint
+
+      - name: vérifie les vulnérabilités
+        run: npm audit
+
+      - name: exécute les tests
+        run: npm run test:ci
+
+      - name: Upload du rapport de couverture sur Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout le code
+        uses: actions/checkout@v4
+
+      - name: déployer sur le serveur
+
+        run: |
+          eval $(ssh-agent -s)
+          ssh-add - <<< "${{ secrets.SSH_KEY_VPS }}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+          scp -r ./server $SERVER_USER@$SERVER_IP:/var/www
+          ssh $SERVER_USER@$SERVER_IP "cd /var/www/server && npm install --omit=dev"
+          ssh $SERVER_USER@$SERVER_IP "cd /var/www/server && pm2 startOrRestart ecosystem.config.js --env production && pm2 save"
