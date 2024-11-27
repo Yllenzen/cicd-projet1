@@ -1,7 +1,7 @@
 {
   "name": "dymavue",
   "version": "0.0.0",
-  "type": "module",
+  // "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "VITE_COVERAGE='false' run-p type-check build-only",
